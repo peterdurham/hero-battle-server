@@ -4,6 +4,7 @@ const mongoose = require("mongoose");
 
 const Hero = require("../../models/Hero");
 const Battle = require("../../models/Battle");
+const dateToString = require("../../utils/dateToString");
 
 router.get("/test", (req, res) => res.json({ msg: "post works" }));
 
@@ -47,12 +48,10 @@ router.get("/", (req, res) => {
     .catch(err => res.status(404).json({ msg: "no battles found" }));
 });
 
-// @ route GET api/battles/date
-// @ Get Battle by date (public)
-router.get("/date", (req, res) => {
-  const date = req.body.date;
-
-  Battle.findOne({ date })
+// @ route GET api/battles/today
+// @ Get todays battles
+router.get("/today", (req, res) => {
+  Battle.find({ date: req.body.todaysDate })
     .then(battle => res.json(battle))
     .catch(err => res.status(404).json({ msg: "no battles found" }));
 });
