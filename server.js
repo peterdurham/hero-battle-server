@@ -1,4 +1,6 @@
 const express = require("express");
+const socket = require("socket.io");
+
 const cors = require("cors");
 const mongoose = require("mongoose");
 
@@ -10,12 +12,13 @@ const heroes = require("./routes/api/heroes");
 const battles = require("./routes/api/battles");
 const users = require("./routes/api/users");
 const profile = require("./routes/api/profile");
+const chat = require("./routes/api/chat");
 
 const app = express();
 
+app.use(cors());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
-app.use(cors());
 const db = require("./config/keys").mongoURI;
 
 mongoose
@@ -33,6 +36,7 @@ app.use("/api/heroes", heroes);
 app.use("/api/battles", battles);
 app.use("/api/users", users);
 app.use("/api/profile", profile);
+app.use("/api/chat", chat);
 
 // // serve static assets if in production
 // if (process.env.NODE_ENV === "production") {
@@ -46,4 +50,14 @@ app.use("/api/profile", profile);
 
 const port = process.env.PORT || 5000;
 
-app.listen(port, () => console.log(`Server running on port ${port}`));
+server = app.listen(port, () => console.log(`Server running on port ${port}`));
+
+io = socket(server);
+
+io.on("connection", socket => {
+  // console.log(socket.id);
+
+  socket.on("SEND_MESSAGE", function(data) {
+    io.emit("RECEIVE_MESSAGE", data);
+  });
+});

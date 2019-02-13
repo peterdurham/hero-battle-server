@@ -51,7 +51,10 @@ router.get("/", (req, res) => {
 // @ route GET api/battles/today
 // @ Get todays battles
 router.get("/today", (req, res) => {
-  Battle.find({ date: req.body.todaysDate })
+  const date = new Date();
+  const formatted = dateToString(date);
+
+  Battle.find({ date: formatted })
     .then(battle => res.json(battle))
     .catch(err => res.status(404).json({ msg: "no battles found" }));
 });
@@ -59,31 +62,30 @@ router.get("/today", (req, res) => {
 // @ route POST api/battles/vote/:id
 // @ Vote on a Battles (public)
 router.post("/votes/:userid", (req, res) => {
-  let updatedBattles = [...req.body];
-  let votes = [];
-  updatedBattles.forEach(battle => {
-    votes = [...votes, ...battle.hero1votes];
-    votes = [...votes, ...battle.hero2votes];
-  });
-  let userVotes = votes.filter(vote => vote === req.params.userid);
+  let updatedBattle = req.body;
 
-  if (userVotes.length > 4) {
+  let user = req.params.userid;
+  let votes = [...updatedBattle.hero1votes, updatedBattle.hero2votes];
+
+  let userVotes = votes.filter(vote => vote === user);
+
+  if (userVotes.length > 1) {
     return res.status(400).json({ msg: "user already voted" });
   } else {
-    updatedBattles.forEach(battle => {
-      Battle.findOneAndUpdate(
-        { _id: battle._id },
-        {
-          $set: {
-            hero1votes: battle.hero1votes,
-            hero2votes: battle.hero2votes
-          }
-        },
-        { new: true }
-      )
-        .then(battle => res.json(battle))
-        .catch(err => res.status(400).json({ msg: "vote failed" }));
-    });
+    Battle.findOneAndUpdate(
+      { _id: updatedBattle._id },
+      {
+        $set: {
+          hero1votes: updatedBattle.hero1votes,
+          hero2votes: updatedBattle.hero2votes
+        }
+      },
+      { new: true }
+    )
+      .then(battle => {
+        res.json(battle);
+      })
+      .catch(err => res.status(400).json({ msg: "vote failed" }));
   }
 });
 
