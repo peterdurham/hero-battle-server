@@ -10,33 +10,16 @@ const Suggestion = require("../../models/Suggestion");
 
 router.get("/test", (req, res) => res.json({ msg: "post works" }));
 
-router.post("/", (req, res) => {
-  const newHero = {
-    _id: req.body._id,
-    name: req.body.name,
-    category: req.body.category,
-    from: req.body.from,
-    year: req.body.year,
-    description: req.body.description,
-    alias: req.body.alias,
-    occupation: req.body.occupation,
-    weapon: req.body.weapon,
-    creator: req.body.creator
-  };
-
-  Hero.create(newHero)
-    .then(hero => res.json(hero))
-    .catch(err => res.status(404).json(err));
-});
-
-// GET from /API/HEROES
+// @ route GET api/heroes
+// @ Get heroes (public)
 router.get("/", (req, res) => {
   Hero.find()
     .then(hero => res.json(hero))
     .catch(err => res.status(404).json({ msg: "no heroes found" }));
 });
 
-// POST to /API/SUGGESTIONS
+// @ route POST api/heroes/suggestions
+// @ Suggest a hero (private)
 router.post(
   "/suggestions",
   passport.authenticate("jwt", { session: false }),
@@ -46,43 +29,42 @@ router.post(
     if (!isValid) {
       return res.status(400).json(errors);
     }
-    const user = req.body.user;
-    const date = req.body.date;
 
     const heroSuggestion = {
       category: req.body.category,
       heroName: req.body.heroName,
-      user,
+      user: req.body.user,
       upVotes: [],
       downVotes: [],
-      date
+      date: req.body.date
     };
 
-    Suggestion.findOne({ user: user })
+    let addedToday = false;
+    if (req.body.suggestedToday.length > 0) {
+      addedToday = true;
+    }
+
+    Suggestion.findOne({ _id: req.body.user })
       .then(item => {
-        // if (item.date === "date") {
-        //   errors.alreadySubmitted = "You already suggested a hero today";
-        //   return res.status(404).json(errors);
-        // } else {
-        Suggestion.create(heroSuggestion)
-          .then(item => res.json(item))
-          .catch(err => res.status(404).json(err));
-        // }
+        if (!addedToday) {
+          Suggestion.create(heroSuggestion)
+            .then(item => res.json(item))
+            .catch(err => res.status(404).json(err));
+        }
       })
       .catch(err => res.status(404).json(err));
   }
 );
 
-// get suggestions
-// GET from /API/HEROES
+// @ route GET from api/heroes/suggestions
+// @ get suggestions (public)
 router.get("/suggestions", (req, res) => {
   Suggestion.find()
     .then(results => res.json(results))
     .catch(err => res.status(404).json({ msg: "no suggestions" }));
 });
-
-// upvote/downvote suggestion
-// POST to /api/heroes/suggestions/:id
+// @ route POST to /api/heroes/suggestions/:id
+// @ Vote on a suggestion (private)
 router.post(
   "/suggestions/:id",
   passport.authenticate("jwt", { session: false }),
@@ -102,7 +84,6 @@ router.post(
             item.downVotes.push(user);
           }
         } else if (item.upVotes.indexOf(user) > -1) {
-          // undo upvote or switch to downvote
           if (voteType === "up") {
             let votes = [...item.upVotes].filter(vote => vote !== user);
             item.upVotes = votes;
@@ -112,7 +93,6 @@ router.post(
             item.downVotes.push(user);
           }
         } else if (item.downVotes.indexOf(user) > -1) {
-          // undo downvote or switch to upvote
           if (voteType === "up") {
             let votes = [...item.downVotes].filter(vote => vote !== user);
             item.downVotes = votes;

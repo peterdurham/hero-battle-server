@@ -15,27 +15,9 @@ const ProfileSchema = new Schema({
     type: String,
     required: true
   },
-  votes: {
-    type: [String]
-  },
   brackets: {
     type: [String]
   },
-  // links: {
-  //   website: {
-  //     type: String
-  //   },
-  //   twitter: {
-  //     type: String
-  //   },
-  //   youtube: {
-  //     type: String
-  //   },
-  //   github: {
-  //     type: String
-  //   }
-  // },
-
   date: {
     type: Date,
     default: Date.now

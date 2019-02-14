@@ -68,7 +68,7 @@ router.post("/login", (req, res) => {
 
     bcrypt.compare(password, user.password).then(isMatch => {
       if (isMatch) {
-        // create jwt payload
+        // jwt payload
         const payload = { id: user.id, email: user.email };
 
         // sign token (expiresIn: 3600 is 1 hour, 172800 is 2 days)
