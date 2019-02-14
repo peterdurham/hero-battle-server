@@ -7,7 +7,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js"
+    "start": "node server.js"
   },
   "author": "Peter Durham",
   "license": "ISC",
