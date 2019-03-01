@@ -5,8 +5,8 @@ const dateToString = date => {
   if (month < 10) {
     month = "0" + month;
   }
-  if (date < 10) {
-    dayOfMonth = "0" + date;
+  if (dayOfMonth < 10) {
+    dayOfMonth = "0" + dayOfMonth;
   }
   return `${month}/${dayOfMonth}/${year}`;
 };

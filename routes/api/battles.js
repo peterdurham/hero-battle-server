@@ -21,10 +21,7 @@ router.get("/", (req, res) => {
 // @ Get todays battles
 router.get("/today", (req, res) => {
   const date = new Date();
-  const utcDate = new Date(date.toUTCString());
-  utcDate.setHours(utcDate.getHours() - 8);
-  const pacificDate = new Date(utcDate);
-  let formatted = dateToString(pacificDate);
+  let formatted = dateToString(date);
 
   Battle.find({ date: formatted })
     .then(battle => res.json(battle))
