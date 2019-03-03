@@ -9,6 +9,21 @@ const dateToString = require("../../utils/dateToString");
 
 router.get("/test", (req, res) => res.json({ msg: "post works" }));
 
+// @route   POST api/battles
+// @desc    Add battle
+router.post("/", (req, res) => {
+  const newBattle = new Battle({
+    hero1votes: [],
+    hero2votes: [],
+    date: req.body.date,
+    category: req.body.category,
+    hero1: req.body.hero1,
+    hero2: req.body.hero2
+  });
+
+  newBattle.save().then(battle => res.json(battle));
+});
+
 // @ route GET api/battles
 // @ Get Battles (public)
 router.get("/", (req, res) => {
